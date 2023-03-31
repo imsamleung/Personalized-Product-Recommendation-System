@@ -1,5 +1,4 @@
 data/external
-data/interim
 data/raw
 models/content_based_filtering
 models/item_based_collaborative_filtering
