@@ -10,7 +10,7 @@ This project aims to combine the content-based filtering and the item-to-item co
 
 ## Data Gathering
 
-The [Amazon Review Dataset ](https://nijianmo.github.io/amazon/index.html) will be used for model training. The dataset is a collection of product reviews and metadata, which contains information on millions of products across various categories, including electronics, books, and clothing. In this project, the electronics dataset is selected in which the product with categories cameras, desktops, headphones, laptops, monitors, smartwatches, and tablets will be chosen.
+The [Amazon Review Dataset ](https://nijianmo.github.io/amazon/index.html) will be used for model training. The dataset is a collection of product reviews and metadata, which contains information on millions of products across various categories, including electronics, books, and clothing. In this project, the electronics dataset, which consists of 6,739,590 reviews and 786,868 products, is selected in which the product with categories cameras, desktops, headphones, laptops, monitors, smartwatches, and tablets will be chosen. After the data preprocessing and selecting only products with desired categories, only 1,798 products and 59,561 reviews remain, which is adequate for the model training.
 
 ## Built With
 
@@ -52,3 +52,7 @@ The [Amazon Review Dataset ](https://nijianmo.github.io/amazon/index.html) will 
 | `GET`  | `/products/{product_id}/recommend/proposed?n=10`                           | Get top n recommended products using proposed solution.                  |
 | `GET`  | `/products/{product_id}/recommend/content-based-filtering?n=10`            | Get top n recommended products using content-based filtering.            |
 | `GET`  | `/products/{product_id}/recommend/item-based-collaborative-filtering?n=10` | Get top n recommended products using item-based-collaborative-filtering. |
+
+- Before calling any recommendation endpoints, you need to login as a user first. 
+- To try a different user, please call the /logout URL and then call the /login/{user_id} to login as another user.
+- You may find a specific user with user_id by calling the /users URL with desired offset and limit.
