@@ -1,30 +1,35 @@
 from api import app
 from api.services import product_service, review_service
-from flask import Response, session, redirect, url_for
+from flask import Response, request, session, redirect, url_for
 
 
-@app.route("/products")
+@app.route("/products", methods=["GET"])
 def find_products():
-    return Response(
-        product_service.find_all()[:100].to_json(orient="records"),
-        mimetype="application/json",
-    )
+    args = request.args
+
+    offset = args.get("offset", default=0, type=int)  # Limit = page size
+    limit = args.get("limit", default=100, type=int)  # Offset = where to start
+    df_products = product_service.find_all(offset, limit)
+    df_products = df_products[["product_id", "name", "price", "image_url"]]
+
+    return Response(df_products.to_json(orient="records"), mimetype="application/json")
 
 
-@app.route("/products/<product_id>")
+@app.route("/products/<product_id>", methods=["GET"])
 def find_product(product_id):
-    return Response(
-        product_service.find_one(product_id).to_json(orient="records"),
-        mimetype="application/json",
-    )
+    df_products = product_service.find_one(product_id)
+    return Response(df_products.to_json(orient="records"), mimetype="application/json")
 
 
-@app.route("/products/<product_id>/reviews")
+@app.route("/products/<product_id>/reviews", methods=["GET"])
 def find_product_reviews(product_id):
-    return Response(
-        review_service.find_by_product_id(product_id).to_json(orient="records"),
-        mimetype="application/json",
-    )
+    args = request.args
+
+    offset = args.get("offset", default=0, type=int)  # Limit = page size
+    limit = args.get("limit", default=100, type=int)  # Offset = where to start
+
+    df_reviews = review_service.find_by_product_id(product_id, offset, limit)
+    return Response(df_reviews.to_json(orient="records"), mimetype="application/json")
 
 
 @app.route("/products/<product_id>/recommend/proposed", methods=["GET"])
@@ -33,8 +38,10 @@ def recommend(product_id):
         return redirect(url_for("find_users"))
 
     user_id = session["user_id"]
+    n = request.args.get("n", default=10, type=int)
 
-    df_products = product_service.recommend(user_id, product_id, 10)
+    df_products = product_service.recommend(user_id, product_id, n)
+    df_products = df_products[["product_id", "name", "price", "image_url"]]
 
     return Response(df_products.to_json(orient="records"), mimetype="application/json")
 
@@ -45,8 +52,10 @@ def content_based_filtering(product_id):
         return redirect(url_for("find_users"))
 
     user_id = session["user_id"]
+    n = request.args.get("n", default=10, type=int)
 
-    df_products = product_service.content_based_filtering(user_id, product_id, 10)
+    df_products = product_service.content_based_filtering(user_id, product_id, n)
+    df_products = df_products[["product_id", "name", "price", "image_url"]]
 
     return Response(df_products.to_json(orient="records"), mimetype="application/json")
 
@@ -60,9 +69,11 @@ def item_based_collaborative_filtering(product_id):
         return redirect(url_for("find_users"))
 
     user_id = session["user_id"]
+    n = request.args.get("n", default=10, type=int)
 
     df_products = product_service.item_based_collaborative_filtering(
-        user_id, product_id, 10
+        user_id, product_id, n
     )
+    df_products = df_products[["product_id", "name", "price", "image_url"]]
 
     return Response(df_products.to_json(orient="records"), mimetype="application/json")
